@@ -55,6 +55,32 @@ final class TasksViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let currentTask = currentTasks[indexPath.row]
+        let completedTask = completedTasks[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] _, _, isDone in
+            showAlert()
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            isDone(true)
+        }
+        
+        let doneAtion = UIContextualAction(style: .normal, title: "Done") { [unowned self] _, _, isDone in
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            
+            isDone(true)
+        }
+        
+        editAction.backgroundColor = .orange
+        doneAtion.backgroundColor = .green
+        
+        return UISwipeActionsConfiguration(actions: [doneAtion, editAction, deleteAction])
+    }
+    
     @objc private func addButtonPressed() {
         showAlert()
     }
@@ -75,7 +101,7 @@ extension TasksViewController {
                 style: .default
             ) { [weak self] taskTitle, taskNote in
                 if let task, let completion {
-                    // TODO: - edit task
+                    print("hello")
                     return
                 }
                 self?.save(task: taskTitle, withNote: taskNote)
