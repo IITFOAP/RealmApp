@@ -10,12 +10,13 @@ import UIKit
 import RealmSwift
 
 final class TaskListViewController: UITableViewController {
-
+    // MARK: - Private Properties
     private var originalTaskLists: Results<TaskList>!
     private var taskLists: Results<TaskList>!
     private let storageManager = StorageManager.shared
     private let dataManager = DataManager.shared
     
+    // MARK: - View Life Sycle
     override func viewDidLoad() {
         super.viewDidLoad()
         let addButton = UIBarButtonItem(
@@ -44,8 +45,11 @@ final class TaskListViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TaskListCell", for: indexPath)
         var content = cell.defaultContentConfiguration()
         let taskList = taskLists[indexPath.row]
+        let uncompletedTask = taskList.tasks.filter("isComplete = false")
+        
         content.text = taskList.title
-        content.secondaryText = taskList.tasks.count.formatted()
+        content.secondaryText = taskList.tasks.count == 0 ? "0" : uncompletedTask.count == 0 ? "✔︎" : uncompletedTask.count.formatted()
+
         cell.contentConfiguration = content
         return cell
     }
@@ -85,7 +89,8 @@ final class TaskListViewController: UITableViewController {
         let taskList = taskLists[indexPath.row]
         tasksVC.taskList = taskList
     }
-
+    
+    // MARK: IBAction
     @IBAction func sortingList(_ sender: UISegmentedControl) {
         if sender.selectedSegmentIndex == 1 {
             originalTaskLists = taskLists
@@ -97,6 +102,7 @@ final class TaskListViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    // MARK: Private methods
     @objc private func addButtonPressed() {
         showAlert()
     }

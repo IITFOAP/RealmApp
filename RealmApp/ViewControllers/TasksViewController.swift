@@ -10,13 +10,15 @@ import UIKit
 import RealmSwift
 
 final class TasksViewController: UITableViewController {
-    
+    // MARK: - Public Properties
     var taskList: TaskList!
     
+    // MARK: - Private Properties
     private var currentTasks: Results<Task>!
     private var completedTasks: Results<Task>!
     private let storageManager = StorageManager.shared
 
+    // MARK: - View Life Sycle
     override func viewDidLoad() {
         super.viewDidLoad()
         title = taskList.title
@@ -55,6 +57,10 @@ final class TasksViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
@@ -66,23 +72,19 @@ final class TasksViewController: UITableViewController {
             isDone(true)
         }
         
-        let doneAtion = UIContextualAction(style: .normal,title: indexPath.section == 0 ? "Done" : "Undone") { [unowned self] _, _, isDone in
+        let doneAction = UIContextualAction(style: .normal,title: indexPath.section == 0 ? "Done" : "Undone") { [unowned self] _, _, isDone in
             doneTask(indexPath)
             isDone(true)
         }
         
         editAction.backgroundColor = .orange
-        doneAtion.backgroundColor = .green
+        doneAction.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
         
-        return UISwipeActionsConfiguration(actions: [doneAtion, editAction, deleteAction])
+        return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
     }
-    
-    @objc private func addButtonPressed() {
-        showAlert()
-    }
-
 }
 
+// MARK: Private methods
 extension TasksViewController {
     private func showAlert(with task: Task? = nil, completion: (() -> Void)? = nil) {
         let alertBuilder = AlertControllerBuilder(
@@ -164,5 +166,9 @@ extension TasksViewController {
         tableView.beginUpdates()
         tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: indexPath.section == 0 ? 1 : 0))
         tableView.endUpdates()
+    }
+    
+    @objc private func addButtonPressed() {
+        showAlert()
     }
 }
