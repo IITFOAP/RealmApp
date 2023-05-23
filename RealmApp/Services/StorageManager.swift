@@ -65,7 +65,7 @@ final class StorageManager {
         }
     }
     
-    private func write(completion: () -> Void) {
+    func write(completion: () -> Void) {
         do {
             try realm.write {
                 completion()

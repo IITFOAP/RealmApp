@@ -87,11 +87,9 @@ final class TaskListViewController: UITableViewController {
     }
 
     @IBAction func sortingList(_ sender: UISegmentedControl) {
-        let realm = try! Realm()
-        
         if sender.selectedSegmentIndex == 1 {
             originalTaskLists = taskLists
-            taskLists = realm.objects(TaskList.self).sorted(byKeyPath: "title")
+            taskLists = storageManager.realm.objects(TaskList.self).sorted(byKeyPath: "title")
         } else {
             taskLists = originalTaskLists
         }
