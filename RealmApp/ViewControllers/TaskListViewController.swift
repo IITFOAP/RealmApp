@@ -11,6 +11,7 @@ import RealmSwift
 
 final class TaskListViewController: UITableViewController {
 
+    private var originalTaskLists: Results<TaskList>!
     private var taskLists: Results<TaskList>!
     private let storageManager = StorageManager.shared
     private let dataManager = DataManager.shared
@@ -22,7 +23,7 @@ final class TaskListViewController: UITableViewController {
             target: self,
             action: #selector(addButtonPressed)
         )
-        
+
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = editButtonItem
         
@@ -87,6 +88,20 @@ final class TaskListViewController: UITableViewController {
     }
 
     @IBAction func sortingList(_ sender: UISegmentedControl) {
+        let realm = try! Realm()
+        
+        switch sender.selectedSegmentIndex {
+        case 0: break
+            taskLists = originalTaskLists
+            tableView.reloadData()
+        case 1:
+            originalTaskLists = taskLists
+            taskLists = realm.objects(TaskList.self).sorted(byKeyPath: "title")
+            tableView.reloadData()
+        default:
+            break
+        }
+
     }
     
     @objc private func addButtonPressed() {
