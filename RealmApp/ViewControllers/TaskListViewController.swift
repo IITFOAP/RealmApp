@@ -23,7 +23,6 @@ final class TaskListViewController: UITableViewController {
             target: self,
             action: #selector(addButtonPressed)
         )
-
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = editButtonItem
         
@@ -90,18 +89,14 @@ final class TaskListViewController: UITableViewController {
     @IBAction func sortingList(_ sender: UISegmentedControl) {
         let realm = try! Realm()
         
-        switch sender.selectedSegmentIndex {
-        case 0: break
-            taskLists = originalTaskLists
-            tableView.reloadData()
-        case 1:
+        if sender.selectedSegmentIndex == 1 {
             originalTaskLists = taskLists
             taskLists = realm.objects(TaskList.self).sorted(byKeyPath: "title")
-            tableView.reloadData()
-        default:
-            break
+        } else {
+            taskLists = originalTaskLists
         }
-
+        
+        tableView.reloadData()
     }
     
     @objc private func addButtonPressed() {
