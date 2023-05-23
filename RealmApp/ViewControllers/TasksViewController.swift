@@ -58,46 +58,16 @@ final class TasksViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
-            if indexPath.section == 0 {
-                let task = currentTasks[indexPath.row]
-                storageManager.deleteTask(task)
-            } else if indexPath.section == 1 {
-                let task = completedTasks[indexPath.row]
-                storageManager.deleteTask(task)
-            }
-            
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            deleteTask(indexPath)
         }
         
         let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] _, _, isDone in
-            showAlert()
-            tableView.reloadRows(at: [indexPath], with: .automatic)
+            editTask(indexPath)
             isDone(true)
         }
         
-        let doneAtion = UIContextualAction(style: .normal, title: "Done") { [unowned self] _, _, isDone in
-            if indexPath.section == 0 {
-                let task = currentTasks[indexPath.row]
-                storageManager.doneTask(task) {
-                    currentTasks = storageManager
-                        .realm
-                        .objects(Task.self)
-                        .filter("isComplete = false")
-                }
-            } else if indexPath.section == 1 {
-                let task = completedTasks[indexPath.row]
-                storageManager.doneTask(task) {
-                    currentTasks = storageManager
-                        .realm
-                        .objects(Task.self)
-                        .filter("isComplete = true")
-                }
-            }
-            
-            tableView.beginUpdates()
-            tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: indexPath.section == 0 ? 1 : 0))
-            tableView.endUpdates()
-            
+        let doneAtion = UIContextualAction(style: .normal,title: indexPath.section == 0 ? "Done" : "Undone") { [unowned self] _, _, isDone in
+            doneTask(indexPath)
             isDone(true)
         }
         
@@ -127,7 +97,8 @@ extension TasksViewController {
                 style: .default
             ) { [weak self] taskTitle, taskNote in
                 if let task, let completion {
-                    print("hello")
+                    self?.storageManager.editTask(task, taskTitle, taskNote)
+                    completion()
                     return
                 }
                 self?.save(task: taskTitle, withNote: taskNote)
@@ -143,5 +114,55 @@ extension TasksViewController {
             let rowIndex = IndexPath(row: currentTasks.index(of: task) ?? 0, section: 0)
             tableView.insertRows(at: [rowIndex], with: .automatic)
         }
+    }
+    
+    private func deleteTask(_ indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            let task = currentTasks[indexPath.row]
+            storageManager.deleteTask(task)
+        } else if indexPath.section == 1 {
+            let task = completedTasks[indexPath.row]
+            storageManager.deleteTask(task)
+        }
+        
+        tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+    
+    private func editTask(_ indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            let task = currentTasks[indexPath.row]
+            showAlert(with: task) { [weak self] in
+                self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        } else if indexPath.section == 1 {
+            let task = completedTasks[indexPath.row]
+            showAlert(with: task) { [weak self] in
+                self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
+    }
+    
+    private func doneTask(_ indexPath: IndexPath) {
+        if indexPath.section == 0 {
+            let task = currentTasks[indexPath.row]
+            storageManager.doneTask(task) {
+                currentTasks = storageManager
+                    .realm
+                    .objects(Task.self)
+                    .filter("isComplete = false")
+            }
+        } else if indexPath.section == 1 {
+            let task = completedTasks[indexPath.row]
+            storageManager.doneTask(task) {
+                currentTasks = storageManager
+                    .realm
+                    .objects(Task.self)
+                    .filter("isComplete = true")
+            }
+        }
+        
+        tableView.beginUpdates()
+        tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: indexPath.section == 0 ? 1 : 0))
+        tableView.endUpdates()
     }
 }
