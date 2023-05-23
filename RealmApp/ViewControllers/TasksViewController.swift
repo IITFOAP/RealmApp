@@ -72,7 +72,10 @@ final class TasksViewController: UITableViewController {
             isDone(true)
         }
         
-        let doneAction = UIContextualAction(style: .normal,title: indexPath.section == 0 ? "Done" : "Undone") { [unowned self] _, _, isDone in
+        let doneAction = UIContextualAction(style: .normal,title: indexPath.section == 0
+                                            ? "Done"
+                                            : "Undone"
+        ) { [unowned self] _, _, isDone in
             doneTask(indexPath)
             isDone(true)
         }
