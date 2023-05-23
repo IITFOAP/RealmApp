@@ -38,7 +38,7 @@ final class TasksViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        section == 0 ? currentTasks.count : completedTasks.count
+        section == 0 ? currentTasks.count : completedTasks.count 
     }
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -56,10 +56,18 @@ final class TasksViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let currentTask = currentTasks[indexPath.row]
-        let completedTask = completedTasks[indexPath.row]
+//        let currentTask = currentTasks[indexPath.row]
+//        let completedTask = completedTasks[indexPath.row]
         
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
+            if indexPath.section == 0 {
+                let task = currentTasks[indexPath.row]
+                storageManager.deleteTask(task)
+            } else if indexPath.section == 1 {
+                let task = completedTasks[indexPath.row]
+                storageManager.deleteTask(task)
+            }
+            
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
         
