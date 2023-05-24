@@ -72,9 +72,9 @@ final class TasksViewController: UITableViewController {
             isDone(true)
         }
         
-        let doneAction = UIContextualAction(style: .normal,title: indexPath.section == 0
-                                            ? "Done"
-                                            : "Undone"
+        let doneAction = UIContextualAction(
+            style: .normal,
+            title: indexPath.section == 0 ? "Done" : "Undone"
         ) { [unowned self] _, _, isDone in
             doneTask(indexPath)
             isDone(true)
@@ -148,27 +148,17 @@ extension TasksViewController {
     }
     
     private func doneTask(_ indexPath: IndexPath) {
-        if indexPath.section == 0 {
-            let task = currentTasks[indexPath.row]
-            storageManager.doneTask(task) {
-                currentTasks = storageManager
-                    .realm
-                    .objects(Task.self)
-                    .filter("isComplete = false")
-            }
-        } else if indexPath.section == 1 {
-            let task = completedTasks[indexPath.row]
-            storageManager.doneTask(task) {
-                currentTasks = storageManager
-                    .realm
-                    .objects(Task.self)
-                    .filter("isComplete = true")
-            }
+        let taskLists = indexPath.section == 0 ? currentTasks : completedTasks
+        let task = taskLists?[indexPath.row] ?? completedTasks[indexPath.row]
+        storageManager.doneTask(task) {
+            _ = storageManager
+                .realm
+                .objects(Task.self)
+                .filter(indexPath.section == 0 ? "isComplete = false" : "isComplete = true")
         }
         
-        tableView.beginUpdates()
         tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: indexPath.section == 0 ? 1 : 0))
-        tableView.endUpdates()
+        tableView.reloadData()
     }
     
     @objc private func addButtonPressed() {

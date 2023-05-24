@@ -11,7 +11,6 @@ import RealmSwift
 
 final class TaskListViewController: UITableViewController {
     // MARK: - Private Properties
-    private var originalTaskLists: Results<TaskList>!
     private var taskLists: Results<TaskList>!
     private let storageManager = StorageManager.shared
     private let dataManager = DataManager.shared
@@ -96,13 +95,11 @@ final class TaskListViewController: UITableViewController {
     
     // MARK: IBAction
     @IBAction func sortingList(_ sender: UISegmentedControl) {
-        if sender.selectedSegmentIndex == 1 {
-            originalTaskLists = taskLists
-            taskLists = storageManager.realm.objects(TaskList.self).sorted(byKeyPath: "title")
-        } else {
-            taskLists = originalTaskLists
-        }
-        
+
+        taskLists = sender.selectedSegmentIndex == 1
+        ? storageManager.realm.objects(TaskList.self).sorted(byKeyPath: "title")
+        : storageManager.realm.objects(TaskList.self).sorted(byKeyPath: "date")
+
         tableView.reloadData()
     }
     
